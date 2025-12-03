@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flashcard Supabase Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background: #f3f3f3;
+    }
+    #sidebar {
+      width: 260px;
+      background: #222;
+      color: #eee;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    #main {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+    input, button, textarea {
+      margin: 4px 0;
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 4px;
+    }
+    button {
+      cursor: pointer;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .small {
+      font-size: 12px;
+      color: #555;
+    }
+    .deck-item {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    .deck-item:hover {
+      background: #f0f0f0;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+    #log {
+      font-size: 12px;
+      background: #111;
+      color: #0f0;
+      padding: 8px;
+      height: 120px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <h2>Flashcard Demo</h2>
+    <div class="section">
+      <h3>Auth</h3>
+      <div>
+        <label>Email</label><br />
+        <input id="email" type="email" placeholder="email@example.com" />
+      </div>
+      <div>
+        <label>Password</label><br />
+        <input id="password" type="password" placeholder="••••••••" />
+      </div>
+      <div>
+        <label>Display name (signup)</label><br />
+        <input id="displayName" type="text" placeholder="Your name" />
+      </div>
+      <button onclick="signup()">Sign up</button>
+      <button onclick="login()">Login</button>
+      <button onclick="logout()">Logout</button>
+      <p class="small" id="authStatus">Not logged in</p>
+    </div>
+
+    <div class="section">
+      <h3>Profile</h3>
+      <button onclick="loadMe()">Load / Refresh profile</button>
+      <div id="profileInfo" class="small"></div>
+    </div>
+
+    <div class="section">
+      <h3>Avatar (Storage)</h3>
+      <input type="file" id="avatarFile" accept="image/*" />
+      <button onclick="uploadAvatar()">Upload avatar</button>
+      <div id="avatarPreview"></div>
+    </div>
+
+    <div class="section">
+      <h3>Public decks</h3>
+      <input id="searchText" type="text" placeholder="Search title..." />
+      <button onclick="loadPublicDecks()">Search</button>
+      <div id="publicDeckList" style="max-height:160px; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="section">
+      <h2>Your decks</h2>
+      <button onclick="loadMyDecks()">Load my decks</button>
+      <div id="myDeckList"></div>
+    </div>
+
+    <div class="section">
+      <h3>Create deck</h3>
+      <div>
+        <label>Title</label><br />
+        <input type="text" id="deckTitle" />
+      </div>
+      <div>
+        <label>Description</label><br />
+        <textarea id="deckDescription" rows="2"></textarea>
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" id="deckIsPublic" /> Public deck
+        </label>
+      </div>
+      <button onclick="createDeck()">Create</button>
+    </div>
+
+    <div class="section">
+      <h3>Deck detail</h3>
+      <p id="currentDeckLabel" class="small">No deck selected</p>
+      <button onclick="loadCurrentDeck()" id="reloadDeckBtn" disabled>Reload cards</button>
+      <button onclick="loadDeckStats()" id="deckStatsBtn" disabled>View deck stats (Edge Function)</button>
+      <div id="deckStats" class="small"></div>
+      <hr />
+      <div id="cardList"></div>
+    </div>
+
+    <div class="section">
+      <h3>Add card to current deck</h3>
+      <p class="small">You must select a deck first.</p>
+      <div>
+        <label>Front</label><br />
+        <textarea id="cardFront" rows="2"></textarea>
+      </div>
+      <div>
+        <label>Back</label><br />
+        <textarea id="cardBack" rows="2"></textarea>
+      </div>
+      <button onclick="addCard()">Add card</button>
+    </div>
+
+    <div class="section">
+      <h3>Log</h3>
+      <div id="log"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
