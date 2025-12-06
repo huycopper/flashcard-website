@@ -33,27 +33,48 @@ app.get('/api/health', (req, res) => {
 app.post('/api/signup', async (req, res) => {
   const { email, password, displayName } = req.body;
 
-  const { data, error } = await supabaseAnon.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        display_name: displayName,
+  console.log('=== SIGNUP REQUEST ===');
+  console.log('Email:', email);
+  console.log('Password:', password ? '***' : 'missing');
+  console.log('DisplayName:', displayName);
+  console.log('Supabase URL:', process.env.SUPABASE_URL);
+  console.log('Anon Key exists:', !!process.env.SUPABASE_ANON_KEY);
+
+  try {
+    console.log('Calling supabaseAnon.auth.signUp...');
+    const { data, error } = await supabaseAnon.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: displayName,
+        },
       },
-    },
-  });
+    });
 
-  if (error) {
-    console.error(error);
-    return res.status(400).json({ error: error.message });
+    console.log('SignUp response received');
+    console.log('Error:', error);
+    console.log('Data:', data);
+
+    if (error) {
+      console.error('Signup error:', error);
+      return res.status(400).json({ error: error.message, details: error });
+    }
+
+    res.json({ user: data.user });
+  } catch (err) {
+    console.error('Signup exception:', err);
+    res.status(500).json({ error: 'Server error', details: err.message });
   }
-
-  res.json({ user: data.user });
 });
 
 // Đăng nhập
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
 
   const { data, error } = await supabaseAnon.auth.signInWithPassword({
     email,
@@ -85,7 +106,8 @@ app.get('/api/me', requireUser, async (req, res) => {
 
   if (error) {
     console.error(error);
-    return res.status(500).json({ error: error.message });
+    // Return user data even if profile doesn't exist
+    return res.json({ user: req.user, profile: null });
   }
 
   res.json({ user: req.user, profile: data });
